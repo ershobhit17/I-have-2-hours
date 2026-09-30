@@ -1,0 +1,15 @@
+# Confidential & Local Config (Never committed to GitHub)
+config.js
+.env
+.env.local
+.env.*.local
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Node dependencies
+node_modules/
