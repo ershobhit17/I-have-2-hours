@@ -76,29 +76,26 @@ You can deploy this repository for free in less than 2 minutes using any of the 
 2. Click on **Settings** > **Pages** (in the left sidebar).
 3. Under **Branch**, select `main` (or `master`) branch and folder `/ (root)`.
 4. Click **Save**.
-5. Your app will be live within 60 seconds at `https://ershobhit17.github.io/I-have-2-hours/`! 🎉
+5. Your app will be live within 60 seconds at `https://ershobhit17.github.io/I-have-2-hours/`!
+6. **AI is active out of the box** — users can also click **AI Settings** in the top navigation to add their personal OpenRouter key or select other models (Gemini 2.5 Flash, DeepSeek V3, Llama 3.3, Claude 3.5 Haiku).
 
-### Option 2: Vercel (Recommended for Speed & Custom Domains)
+### Option 2: Vercel (Recommended for Production & Serverless API)
 
 1. Go to [vercel.com](https://vercel.com) and click **Add New Project**.
 2. Import your GitHub repository: `ershobhit17/I-have-2-hours`.
-3. Keep default settings (Framework Preset: *Other*) and click **Deploy**.
-4. Vercel will instantly generate a live production URL with automatic SSL and continuous deployment on every `git push`.
-
-### Option 3: Netlify
-
-1. Go to [netlify.com](https://netlify.com) and click **Add new site** > **Import an existing project**.
-2. Connect your GitHub repo `ershobhit17/I-have-2-hours`.
-3. Set Publish directory to `.` (root) and click **Deploy**.
+3. In **Environment Variables**, optionally add:
+   - Key: `OPENROUTER_API_KEY`
+   - Value: `your_openrouter_api_key_here`
+4. Click **Deploy**.
+5. The included `/api/generate` serverless proxy will handle AI requests securely without exposing your API key in browser network logs!
 
 ---
 
-## 🔒 Confidentiality & API Key Security
+## 🔒 Confidentiality & API Architecture
 
-This repository does **NOT** contain any sensitive credentials or hardcoded API keys:
-- Users can enter their personal OpenRouter API key directly in the web app under **`✨ AI Active / AI Settings`**.
-- Keys are strictly stored in the user's private browser `localStorage` and sent directly to `openrouter.ai`.
-- For local development, an optional `config.js` file is included in `.gitignore` so your personal keys are never committed to Git.
+- **Zero-Setup Live Experience:** The web app includes a built-in default connection so visitors can experience generative study plans instantly.
+- **Personal Key Priority:** Any visitor can add their personal OpenRouter API key directly in **`✨ AI Active / AI Settings`**. Personal keys are saved exclusively in browser `localStorage` and override any defaults.
+- **Offline / Template Safety:** If an API quota is reached or network is unavailable, the application gracefully switches to the local template engine with clear UI feedback.
 
 ---
 

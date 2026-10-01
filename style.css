@@ -2004,6 +2004,15 @@ button {
   gap: 5px;
 }
 
+.plan-pill-tag.template-badge {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 /* ==========================================================================
    History Modal Clear & Delete Controls
    ========================================================================== */

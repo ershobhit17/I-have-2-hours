@@ -42,6 +42,7 @@
     brandLogo: document.getElementById('brandLogo'),
     aiSettingsBtn: document.getElementById('aiSettingsBtn'),
     aiStatusDot: document.getElementById('aiStatusDot'),
+    aiStatusBtnText: document.getElementById('aiStatusBtnText'),
     historyBtn: document.getElementById('historyBtn'),
     historyCount: document.getElementById('historyCount'),
     historyModal: document.getElementById('historyModal'),
@@ -386,7 +387,9 @@
    */
   function updateAiStatusIndicator() {
     const hasKey = window.AIService.hasApiKey();
+    const isUsingDefault = window.AIService.isUsingDefaultKey && window.AIService.isUsingDefaultKey();
     const currentModel = window.AIService.getModel();
+    const shortModel = currentModel.split('/')[1] || currentModel;
 
     if (elements.aiStatusDot) {
       if (hasKey) {
@@ -398,10 +401,19 @@
       }
     }
 
+    if (elements.aiStatusBtnText) {
+      if (hasKey) {
+        elements.aiStatusBtnText.textContent = '✨ AI Active';
+      } else {
+        elements.aiStatusBtnText.textContent = '⚡ Connect AI';
+      }
+    }
+
     if (elements.statusIndicatorDot && elements.aiStatusText) {
       if (hasKey) {
         elements.statusIndicatorDot.classList.add('active');
-        elements.aiStatusText.textContent = `Active: Connected to ${currentModel}`;
+        const keyNote = isUsingDefault ? '(Shared Cloud Key)' : '(Custom Key)';
+        elements.aiStatusText.textContent = `Connected: ${shortModel} ${keyNote}`;
       } else {
         elements.statusIndicatorDot.classList.remove('active');
         elements.aiStatusText.textContent = 'Offline Mode: Using built-in smart algorithm';
@@ -507,9 +519,11 @@
     elements.planCategoryTag.textContent = `${plan.topicIcon} ${plan.topicName}`;
     elements.planLevelTag.textContent = plan.level;
 
-    // AI Badge handling
+    // AI Badge vs Template Badge handling
     const existingAiBadge = document.getElementById('planAiBadge');
     if (existingAiBadge) existingAiBadge.remove();
+    const existingTplBadge = document.getElementById('planTplBadge');
+    if (existingTplBadge) existingTplBadge.remove();
 
     if (plan.isAiGenerated) {
       const aiBadge = document.createElement('span');
@@ -518,6 +532,13 @@
       const shortModel = plan.aiModel ? plan.aiModel.split('/')[1] || plan.aiModel : 'AI';
       aiBadge.innerHTML = `✨ AI: ${shortModel}`;
       elements.planHeroBadgeRow.appendChild(aiBadge);
+    } else {
+      const tplBadge = document.createElement('span');
+      tplBadge.className = 'plan-pill-tag template-badge';
+      tplBadge.id = 'planTplBadge';
+      tplBadge.innerHTML = `📋 Template Engine`;
+      tplBadge.title = plan.fallbackReason ? `AI fallback: ${plan.fallbackReason}` : 'Offline template';
+      elements.planHeroBadgeRow.appendChild(tplBadge);
     }
 
     elements.planMetaGoal.textContent = plan.goal;
@@ -689,7 +710,7 @@
           showToast(`Generated via OpenRouter (${window.AIService.getModel().split('/')[1] || 'AI'}) ✨`);
         } catch (aiErr) {
           console.warn('AI generation error, falling back to smart engine:', aiErr);
-          showToast(`AI error: ${aiErr.message}. Used smart engine fallback.`, 3500);
+          showToast(`AI error: ${aiErr.message}. Switched to template mode.`, 4500);
           plan = window.PlanGenerator.generatePlan({
             topicId,
             customTopic,
@@ -697,6 +718,7 @@
             goal: specificGoal,
             level
           });
+          plan.fallbackReason = aiErr.message;
         }
       } else {
         // Built-in smart algorithm
@@ -1073,7 +1095,15 @@
 
     // AI Settings Modal Open/Close
     elements.aiSettingsBtn.addEventListener('click', () => {
-      elements.openRouterKeyInput.value = window.AIService.getApiKey();
+      const isDefault = window.AIService.isUsingDefaultKey && window.AIService.isUsingDefaultKey();
+      const currentKey = window.AIService.getApiKey();
+      if (isDefault) {
+        elements.openRouterKeyInput.value = '';
+        elements.openRouterKeyInput.placeholder = 'Using shared cloud key (or enter custom key)...';
+      } else {
+        elements.openRouterKeyInput.value = currentKey;
+        elements.openRouterKeyInput.placeholder = 'sk-or-v1-xxxxxxxxxxxxxxxxxxxx...';
+      }
       elements.aiModelSelect.value = window.AIService.getModel();
       updateAiStatusIndicator();
       elements.aiSettingsModal.style.display = 'flex';
@@ -1099,14 +1129,14 @@
       window.AIService.setModel(model);
       updateAiStatusIndicator();
       elements.aiSettingsModal.style.display = 'none';
-      showToast('OpenRouter AI activated! Future plans will use AI.');
+      showToast('Custom OpenRouter key saved! Using your personal API key.');
     });
 
     elements.removeApiKeyBtn.addEventListener('click', () => {
       window.AIService.setApiKey('');
       elements.openRouterKeyInput.value = '';
       updateAiStatusIndicator();
-      showToast('API Key removed. Switched to smart template engine.');
+      showToast('Custom key removed. Reset to default shared connection.');
     });
 
     // Topic Selection Cards
